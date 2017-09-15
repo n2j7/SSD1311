@@ -185,6 +185,7 @@ void SSD1311::setContrast(uint8_t level) {
 void SSD1311::setDDRAM(uint8_t addr) {
 	// [IS=X,RE=0,SD=0]
 	// 1 AC6 AC5 AC4 AC3 AC2 AC1 AC0
+	// ACX - Address Counter bit
 	addr = addr & B01111111;// remove top bit
 	sendCommand(0x80 | addr);
 };
@@ -192,6 +193,7 @@ void SSD1311::setDDRAM(uint8_t addr) {
 void SSD1311::setCGRAM(uint8_t addr) {
 	// [IS=0,RE=0,SD=0]
 	// 0 1 AC5 AC4 AC3 AC2 AC1 AC0
+	// ACX - Address Counter bit
 	addr = addr & B00111111;// remove 2 top bit
 	sendCommand(0x40 | addr);
 };
@@ -201,3 +203,26 @@ void SSD1311::setCursorPosition(uint8_t col, uint8_t row) {
 	uint8_t row_offsets[] = { 0x00, 0x40 };
 	setDDRAM(col + row_offsets[row]);
 };
+
+void SSD1311::selectRomRam(uint8_t rom, uint8_t ram) {
+	// @NOTE:
+	//      It is recommended to turn off the
+	//      disply (cmd 08h) before setting no. of
+	//      CGRAM and defining character ROM,
+	//      while clear display (cmd 01h) is
+	//      recommended to sent afterwards
+	// [IS=X,RE=1,SD=0]
+	// this is two bytes command
+	// 0 0 0 0 RO1 RO0 OP1 OP0
+	// RO[1:0]  ROM  |  OP[1:0]    CGROM    CGRAM
+	//   00      A   |     00       240       8
+	//   01      B   |     01       248       8
+	//   10      C   |     10       250       6
+	//   11  Invalid |     11       256       0
+	rom = rom & B00000011;// remove all bits except last two
+	ram = ram & B00000011;// remove all bits except last two
+	setRE(1);
+	sendCommand(0x72);
+	sendData((rom << 2) | ram);
+	setRE(0);
+}

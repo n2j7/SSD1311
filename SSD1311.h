@@ -9,6 +9,20 @@
 #define SSD1311_DATA_MODE 0x40// ALL next bytes will be read as a DATA
 #define SSD1311_DATA_BATCH_MODE 0xC0// ONE next byte is DATA, next one have to be from (0x80;0x40;0xC0)
 
+#define SSD1311_CGROM_240 0
+#define SSD1311_CGROM_248 1
+#define SSD1311_CGROM_250 2
+#define SSD1311_CGROM_256 3
+
+#define SSD1311_CGROM_1 0 // alias for 240
+#define SSD1311_CGROM_2 1 // alias for 248
+#define SSD1311_CGROM_3 2 // alias for 250
+#define SSD1311_CGROM_4 3 // alias for 256
+
+#define SSD1311_RAM_A 0
+#define SSD1311_RAM_B 1
+#define SSD1311_RAM_C 2
+
 
 class SSD1311 {
 	public:
@@ -34,6 +48,7 @@ class SSD1311 {
 		void setDDRAM(uint8_t addr);
 		void setCGRAM(uint8_t addr);
 		void setCursorPosition(uint8_t col, uint8_t row);
+		void selectRomRam(uint8_t rom, uint8_t ram);
 	protected:
 		uint8_t mc_address;
 		uint8_t IS;
@@ -56,11 +71,9 @@ class SSD1311 {
 			- Set CGRAM address
 			- Set Scroll Quantity
 			- Read Busy Flag and Address/ Part ID
-			- Write data into DDRAM / CGRAM
 			- Read data from DDRAM / CGRAM
 			--------------------------
 			- Vdd regulator at 5V I/O application mode
-			- Select the character no. of character generator; Select character ROM
 			- Set Display Clock Divide Ratio/Oscillator Frequency
 			- Set Phase Length
 			- Set SEG Pins Hardware Configuration
