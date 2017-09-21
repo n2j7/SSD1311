@@ -9,19 +9,19 @@
 #define SSD1311_DATA_MODE 0x40// ALL next bytes will be read as a DATA
 #define SSD1311_DATA_BATCH_MODE 0xC0// ONE next byte is DATA, next one have to be from (0x80;0x40;0xC0)
 
-#define SSD1311_CGROM_240 0
-#define SSD1311_CGROM_248 1
-#define SSD1311_CGROM_250 2
-#define SSD1311_CGROM_256 3
+#define SSD1311_CGRAM_240 0
+#define SSD1311_CGRAM_248 1
+#define SSD1311_CGRAM_250 2
+#define SSD1311_CGRAM_256 3
 
-#define SSD1311_CGROM_1 0 // alias for 240
-#define SSD1311_CGROM_2 1 // alias for 248
-#define SSD1311_CGROM_3 2 // alias for 250
-#define SSD1311_CGROM_4 3 // alias for 256
+#define SSD1311_CGRAM_1 0 // alias for 240
+#define SSD1311_CGRAM_2 1 // alias for 248
+#define SSD1311_CGRAM_3 2 // alias for 250
+#define SSD1311_CGRAM_4 3 // alias for 256
 
-#define SSD1311_RAM_A 0
-#define SSD1311_RAM_B 1
-#define SSD1311_RAM_C 2
+#define SSD1311_ROM_A 0
+#define SSD1311_ROM_B 1
+#define SSD1311_ROM_C 2
 
 
 class SSD1311 {
@@ -40,6 +40,7 @@ class SSD1311 {
 		void sendData(unsigned char data);
 		void sendBatch(unsigned char pack[], uint8_t length);
 		void sendString(const char *String, uint8_t col, uint8_t row);
+		void readData(char *buf, uint8_t length);
 		void clear();
 		void setFont();
 		void setDisplayShift();
@@ -49,6 +50,11 @@ class SSD1311 {
 		void setCGRAM(uint8_t addr);
 		void setCursorPosition(uint8_t col, uint8_t row);
 		void selectRomRam(uint8_t rom, uint8_t ram);
+		void switchToDataMode();
+		void switchToCmdMode();
+		void readRamSymbol(char *symb_data, uint8_t symb_ind);
+		void writeRamSymbol(char *symb_data, uint8_t symb_ind);
+		void readString(char *symb_data, uint8_t col, uint8_t row, uint8_t len);
 	protected:
 		uint8_t mc_address;
 		uint8_t IS;
@@ -68,10 +74,9 @@ class SSD1311 {
 			- Double Height (4-line) / Display-dot shift
 			- Shift Enable
 			- Scroll Enable
-			- Set CGRAM address
 			- Set Scroll Quantity
 			- Read Busy Flag and Address/ Part ID
-			- Read data from DDRAM / CGRAM
+			- Read data from DDRAM
 			--------------------------
 			- Vdd regulator at 5V I/O application mode
 			- Set Display Clock Divide Ratio/Oscillator Frequency

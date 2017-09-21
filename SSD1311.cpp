@@ -79,6 +79,15 @@ void SSD1311::sendString(const char *String, uint8_t col, uint8_t row) {
 	}
 }
 
+void SSD1311::readData(char *buf, uint8_t length) {
+	Wire.requestFrom(mc_address, length);
+	uint8_t idx=0;
+	while (Wire.available()) {
+		buf[idx] =  Wire.read();
+		idx++;
+	}
+}
+
 void SSD1311::clear() {
 	sendCommand(0x01);// [IS=X,RE=X,SD=0] clear command
 }
@@ -118,6 +127,7 @@ void SSD1311::setIS(uint8_t state) {
 	// DH - Double height font control
 	// RE register = 0
 	// IS register
+	IS=state;
 	uint8_t base_cmd = 0x20; // 0b00100000
 	base_cmd = base_cmd | (N << 3);
 	base_cmd = base_cmd | (double_height << 2);
@@ -129,6 +139,7 @@ void SSD1311::setIS(uint8_t state) {
 void SSD1311::setSD(uint8_t state) {
 	// [IS=X,RE=1,SD=X]
 	// 0 1 1 1 1 0 0 SD
+	SD=state;
 	uint8_t base_cmd = 0x78; // 0b01111000
 	base_cmd = base_cmd + state;
 	setRE(1);
@@ -225,4 +236,39 @@ void SSD1311::selectRomRam(uint8_t rom, uint8_t ram) {
 	sendCommand(0x72);
 	sendData((rom << 2) | ram);
 	setRE(0);
+}
+
+void SSD1311::switchToDataMode() {
+	Wire.beginTransmission(mc_address);
+	Wire.write(SSD1311_DATA_MODE);// Set OLED Data mode [Co=0, D/C#=1]
+	Wire.endTransmission();
+}
+
+void SSD1311::switchToCmdMode() {
+	Wire.beginTransmission(mc_address);
+	Wire.write(SSD1311_CMD_MODE);// Set OLED Command mode [Co=1, D/C#=0]
+	Wire.endTransmission();
+}
+
+void SSD1311::readRamSymbol(char *symb_data, uint8_t symb_ind) {
+	setCGRAM(symb_ind*8);// each symbol is 8 bytes long
+	switchToDataMode();
+	readData(symb_data, 9);// 9 due to we have to ignore first line in answer //@TODO: fix that
+}
+
+void SSD1311::writeRamSymbol(char *symb_data, uint8_t symb_ind) {
+	setCGRAM(symb_ind*8);
+	uint8_t i=0;
+	Wire.beginTransmission(mc_address);
+	Wire.write(SSD1311_DATA_MODE);
+	for (i=0; i < 8; i=i+1) {
+		Wire.write(symb_data[i]);
+	}
+	Wire.endTransmission();
+}
+
+void SSD1311::readString(char *symb_data, uint8_t col, uint8_t row, uint8_t len) {
+	setCursorPosition(col, row);
+	switchToDataMode();
+	readData(symb_data, len+1);// +1 due to we have to ignore first line in answer @TODO: fix that
 }
