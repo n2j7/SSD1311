@@ -76,7 +76,6 @@ class SSD1311 {
 			- Scroll Enable
 			- Set Scroll Quantity
 			- Read Busy Flag and Address/ Part ID
-			- Read data from DDRAM
 			--------------------------
 			- Vdd regulator at 5V I/O application mode
 			- Set Display Clock Divide Ratio/Oscillator Frequency
