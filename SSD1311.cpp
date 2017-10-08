@@ -9,8 +9,12 @@ SSD1311::SSD1311(){
 	double_height = false;
 	cursor_inverting = false;
 	display_lines = 2;// @TODO control this, write function to change registers N and NW
-	display_shift=false;
-	cursor_shift=false;
+	display_shift = true;
+	display_shift_dir = SSD1311_DIRECTION_RIGHT;
+	cursor_shift = false;
+	cursor_direction = SSD1311_DIRECTION_RIGHT;
+	BDC=true;
+	BDS=true;
 	// default states
 	IS=0;
 	RE=0;
@@ -31,19 +35,42 @@ void SSD1311::powerMode(uint8_t is_on) {
 	//     Section 9.1.4 for details
 
 	delay(105);//waiting for Vdd become stable @TODO: remove delay with async code
-	setDisplayShift();
-	setCursorShift();
-	setFont();
-	clear();
-	int base_cmd = 0x08; // 0b00001000
+	//setDisplayShift();
+	//setCursorShift();
+	//setFont();
+	//clear();
+	// [IS=X,RE=0,SD=0] power on command
 	// 0 0 0 0 1 D C B
 	// D - display on
 	// C - cursor on
 	// B - blink on
+	int base_cmd = 0x08; // 0b00001000
 	base_cmd = base_cmd | (is_on << 2);// set 3-nd bit
 	base_cmd = base_cmd | (cursor_on << 1);// set 2-nd bit
 	base_cmd = base_cmd | cursor_blinking;//set 1-st bit
-	sendCommand(base_cmd);// [IS=X,RE=0,SD=0] power on command
+	sendCommand(base_cmd);
+}
+
+void SSD1311::setEntryMode() {
+	// [IS=X,RE=0,SD=0]
+	// 0 0 0 0 0 1 I/D S
+	// I/D - cursor direction
+	// S - display shift
+	int base_cmd = 0x08; // 0b00000100
+	base_cmd = base_cmd | (cursor_direction << 1);// set 2-nd bit
+	base_cmd = base_cmd | display_shift;//set 1-st bit
+	sendCommand(base_cmd);
+
+	// [IS=X,RE=1,SD=0]
+	// 0 0 0 0 0 1 BDC BDS
+	// BDC - "0": COM31 -> COM0; "1": COM0 -> COM31
+	// BDS = "0": SEG99 -> SEG0; "1": SEG0 -> SEG99
+	base_cmd = 0x08; // 0b00000100
+	base_cmd = base_cmd | (BDC << 1);// set 2-nd bit
+	base_cmd = base_cmd | BDS;//set 1-st bit
+	setRE(1);
+	sendCommand(base_cmd);
+	setRE(0);
 }
 
 void SSD1311::sendCommand(unsigned char command) {
@@ -90,6 +117,10 @@ void SSD1311::readData(char *buf, uint8_t length) {
 
 void SSD1311::clear() {
 	sendCommand(0x01);// [IS=X,RE=X,SD=0] clear command
+}
+
+void SSD1311::home() {
+	sendCommand(0x02);// [IS=X,RE=0,SD=0] go to pos 0,0 without changing DDRAM
 }
 
 void SSD1311::setRE(uint8_t state) {
@@ -168,7 +199,7 @@ void SSD1311::setDisplayShift() {
 	// S/C - screen 1 or cursor 0
 	// R/L - shift to right 1 or left 0
 	uint8_t base_cmd = 0x18; // 0b00011000
-	base_cmd = base_cmd | (display_shift << 2);
+	base_cmd = base_cmd | (display_shift_dir << 2);
 	sendCommand(base_cmd);
 }
 

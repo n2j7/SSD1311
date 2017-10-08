@@ -72,4 +72,18 @@ CGRAM is Character Generator RAM
 
 DDRAM is Display Data RAM
 
+### PIN dependent features:
+
+This controller features is preset by pin configuration and may be ignored in code if default values are suitable for you^
+
+* MCU bus interface selection
+* CGRAM
+* Slave address
+* Internal VDD regulator
+* OLED Characterization
+* Display Clock Divide Ratio
+* Oscillator Frequency
+* SEG Pins Hardware Configuration
+* V COMH Deselect Level
+
 [device]: https://github.com/n2j7/SSD1311/raw/master/media/screen16x02.jpg

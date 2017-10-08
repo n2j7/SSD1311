@@ -23,6 +23,9 @@
 #define SSD1311_ROM_B 1
 #define SSD1311_ROM_C 2
 
+#define SSD1311_DIRECTION_RIGHT 1
+#define SSD1311_DIRECTION_LEFT 0
+
 
 class SSD1311 {
 	public:
@@ -32,16 +35,22 @@ class SSD1311 {
 		uint8_t double_height;
 		uint8_t cursor_inverting;
 		uint8_t display_shift;
+		uint8_t display_shift_dir;
 		uint8_t cursor_shift;
+		uint8_t cursor_direction;
+		uint8_t BDC;
+		uint8_t BDS;
 		SSD1311();
 		~SSD1311();
 		void powerMode(uint8_t is_on);
+		void setEntryMode();
 		void sendCommand(unsigned char command);
 		void sendData(unsigned char data);
 		void sendBatch(unsigned char pack[], uint8_t length);
 		void sendString(const char *String, uint8_t col, uint8_t row);
 		void readData(char *buf, uint8_t length);
 		void clear();
+		void home();
 		void setFont();
 		void setDisplayShift();
 		void setCursorShift();
@@ -70,7 +79,6 @@ class SSD1311 {
 
 	/*
 		TODO:
-			- Entry Mode Set
 			- Double Height (4-line) / Display-dot shift
 			- Shift Enable
 			- Scroll Enable
