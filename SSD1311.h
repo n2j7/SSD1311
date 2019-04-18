@@ -51,6 +51,7 @@ class SSD1311 {
 		void readData(char *buf, uint8_t length);
 		void clear();
 		void home();
+		void setLines(uint8_t lines);
 		void setFont();
 		void setDisplayShift();
 		void setCursorShift();
