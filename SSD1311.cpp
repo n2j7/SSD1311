@@ -24,6 +24,20 @@ SSD1311::SSD1311(){
 	FW=0;// font-width "1" for 6-dot font; "0" for 5-dot font @TODO: control this
 }
 
+void SSD1311::setLines(uint8_t lines){
+	display_lines=lines;
+	if (display_lines > 1)
+		NW = 1;
+	else
+		NW = 0;
+	
+	if (display_lines % 2)
+		N=0;
+	else
+		N=1;
+	
+}
+
 SSD1311::~SSD1311(){}
 
 void SSD1311::powerMode(uint8_t is_on) {
@@ -241,8 +255,9 @@ void SSD1311::setCGRAM(uint8_t addr) {
 };
 
 void SSD1311::setCursorPosition(uint8_t col, uint8_t row) {
-	// @TODO! what about 4 strings displays, have to be more smart! depend on settings!
-	uint8_t row_offsets[] = { 0x00, 0x40 };
+	uint8_t row_offsets[] = { 0x00, 0x20, 0x40, 0x60 };
+	if (display_lines == 2 )
+		row_offsets[1] = 0x40;
 	setDDRAM(col + row_offsets[row]);
 };
 
